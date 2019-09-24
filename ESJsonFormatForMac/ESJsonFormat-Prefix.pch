@@ -29,7 +29,7 @@
 
 #define ESFormatResultNotification @"ESFormatResultNotification"
 
-#define ESRootClassName @"ESRootClass"
+#define ESRootClassName @"RootResponse"
 
 #define ESItemClassName @"ESItemClass"
 

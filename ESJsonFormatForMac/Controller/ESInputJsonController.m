@@ -18,6 +18,22 @@
 #import "DataModel.h"
 #import "HttpRequestTool.h"
 #import "FileManager.h"
+
+
+@interface NSString (preFix)
+@property(nonatomic, readonly) NSString *className;
+@end
+
+@implementation NSString (preFix)
+
+- (NSString *)className
+{
+    return [@"ZYBookEnd" stringByAppendingString:self];
+}
+
+@end
+
+
 @interface ESInputJsonController ()<NSTextViewDelegate,NSTableViewDataSource,NSTabViewDelegate,NSTextFieldDelegate,NSTextDelegate>
 
 /**
@@ -566,6 +582,7 @@
  *
  *  @return 类信息
  */
+
 - (ESClassInfo *)dealClassNameWithJsonResult:(id)result{
     __block ESClassInfo *classInfo = nil;
     //如果当前是JSON对应是字典
@@ -573,29 +590,17 @@
         //如果是生成到文件，提示输入Root class name
         if (![ESJsonFormatSetting defaultSetting].outputToFiles) {
             self.dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
-            NSString *msg = [NSString stringWithFormat:@"The root class for output to files name is:"];
-            
-             __weak typeof(self) weakSelf = self;
-            
-            [self.dialog setDataWithMsg:msg defaultClassName:ESRootClassName enter:^(NSString *className) {
-                classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:className classDic:result];
-                
-                if (weakSelf.isSwift) {
-                    
-                    weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.swift",className];
-                     weakSelf.mLabel.stringValue  = @"";
-                    
-                }else{
-                   
-                    weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.h",className];
-                    weakSelf.mLabel.stringValue  = [NSString stringWithFormat:@"%@.m",className];
-                    
-                }
-                
-            }];
-            
-            [NSApp beginSheet:[self.dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
-            [NSApp runModalForWindow:[self.dialog window]];
+            NSString *className = ESRootClassName.className;
+            __weak typeof(self) weakSelf = self;
+            classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:className classDic:result];
+            if (weakSelf.isSwift) {
+                weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.swift",className];
+                weakSelf.mLabel.stringValue  = @"";
+            }else{
+                weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.h",className];
+                weakSelf.mLabel.stringValue  = [NSString stringWithFormat:@"%@.m",className];
+            }
+
             [self dealPropertyNameWithClassInfo:classInfo];
         }else{
             //不生成到文件，Root class 里面用户自己创建
@@ -605,37 +610,15 @@
     }else if([result isKindOfClass:[NSArray class]]){
         if ([ESJsonFormatSetting defaultSetting].outputToFiles) {
             //当前是JSON代表数组，生成到文件需要提示用户输入Root Class name，
-            ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
-            NSString *msg = [NSString stringWithFormat:@"The root class for output to files name is:"];
-            __block NSString *rootClassName = ESRootClassName;
-            [dialog setDataWithMsg:msg defaultClassName:ESRootClassName enter:^(NSString *className) {
-                rootClassName = className;
-            }];
-            [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
-            [NSApp runModalForWindow:[dialog window]];
-            
-            //并且提示用户输入JSON对应的key的名字
-            dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
-            msg = [NSString stringWithFormat:@"The JSON is an array,the correspond 'key' is:"];
-            [dialog setDataWithMsg:msg defaultClassName:ESArrayKeyName enter:^(NSString *className) {
-                //输入完毕之后，将这个class设置
-                NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:className];
-                classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:rootClassName classDic:dic];
-            }];
-            [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
-            [NSApp runModalForWindow:[dialog window]];
+            __block NSString *rootClassName = ESRootClassName.className;
+            //输入完毕之后，将这个class设置
+            NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:rootClassName];
+            classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:rootClassName classDic:dic];
+
             [self dealPropertyNameWithClassInfo:classInfo];
         }else{
-            //Root class 已存在，只需要输入JSON对应的key的名字
-            ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
-            NSString *msg = [NSString stringWithFormat:@"The JSON is an array,the correspond 'key' is:"];
-            [dialog setDataWithMsg:msg defaultClassName:ESArrayKeyName enter:^(NSString *className) {
-                //输入完毕之后，将这个class设置
-                NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:className];
-                classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:ESRootClassName classDic:dic];
-            }];
-            [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
-            [NSApp runModalForWindow:[dialog window]];
+            NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:ESArrayKeyName.className];
+            classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName.className ClassName:ESRootClassName.className classDic:dic];
             [self dealPropertyNameWithClassInfo:classInfo];
         }
     }
@@ -667,14 +650,11 @@
                 msg = [NSString stringWithFormat:@"The '%@' child items class name is:",key];
             }
             __block NSString *childClassName;//Record the current class name
-            [dialog setDataWithMsg:msg defaultClassName:[key capitalizedString] enter:^(NSString *className) {
-                if (![className isEqualToString:key]) {
-                    self.replaceClassNames[key] = className;
-                }
-                childClassName = className;
-            }];
-            [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
-            [NSApp runModalForWindow:[dialog window]];
+            NSString *className = [key capitalizedString].className;
+            if (![className isEqualToString:key]) {
+                self.replaceClassNames[key] = className;
+            }
+            childClassName = className;
             //如果当前obj是 NSDictionary 或者 NSArray，继续向下遍历
             if ([obj isKindOfClass:[NSDictionary class]]) {
                 ESClassInfo *childClassInfo = [[ESClassInfo alloc] initWithClassNameKey:key ClassName:childClassName classDic:obj];
@@ -761,7 +741,7 @@
             self.mContentTextView.string = mContent;
             
             //如果输入主类的话就一起显示了
-            [self.hContentTextView insertText:classInfo.atClassContent replacementRange:NSMakeRange(0, self.hContentTextView.string.length)];
+            [self.hContentTextView insertText:[NSString stringWithFormat:@"%@",classInfo.atClassContent] replacementRange:NSMakeRange(0, self.hContentTextView.string.length)];
             [self.hContentTextView insertText:[NSString stringWithFormat:@"\n%@",classInfo.classContentForH] replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
             [self.hContentTextView insertText:[NSString stringWithFormat:@"\n%@",classInfo.classInsertTextViewContentForH] replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
             
@@ -792,7 +772,7 @@
             [self.hContentTextView insertText:classInfo.classInsertTextViewContentForH replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
         }
         
-        [self creatFile];
+        //[self creatFile];
     }
 }
 
