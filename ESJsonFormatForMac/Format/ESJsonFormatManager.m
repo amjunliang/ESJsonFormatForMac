@@ -45,7 +45,7 @@
  *  @return
  */
 + (NSString *)formatObjcWithKey:(NSString *)key value:(NSObject *)value classInfo:(ESClassInfo *)classInfo{
-    NSString *qualifierStr = @"copy";
+    NSString *qualifierStr = @"copy, nullable";
     NSString *typeStr = @"NSString";
     //判断大小写
     if ([ESUppercaseKeyWords containsObject:key] && [ESJsonFormatSetting defaultSetting].uppercaseKeyWordForId) {
@@ -87,14 +87,14 @@
             genericTypeStr = @"<NSNumber *>";
         }
         
-        qualifierStr = @"strong";
+        qualifierStr = @"strong, qualifierStr";
         typeStr = @"NSArray";
         if ([ESJsonFormatSetting defaultSetting].useGeneric && [ESUtils isXcode7AndLater]) {
             return [NSString stringWithFormat:@"@property (nonatomic, %@) %@%@ *%@;",qualifierStr,typeStr,genericTypeStr,key];
         }
         return [NSString stringWithFormat:@"@property (nonatomic, %@) %@ *%@;",qualifierStr,typeStr,key];
     }else if ([value isKindOfClass:[NSDictionary class]]){
-        qualifierStr = @"strong";
+        qualifierStr = @"strong, qualifierStr";
         ESClassInfo *childInfo = classInfo.propertyClassDic[key];
         typeStr = childInfo.className;
         if (!typeStr) {
@@ -277,15 +277,14 @@
         }
         
         
-        BOOL isYYModel = [[NSUserDefaults standardUserDefaults] boolForKey:@"isYYModel"];
+        NSInteger tag = [[[NSUserDefaults standardUserDefaults] objectForKey:selectedModelTypeSegmentControllerActionKey] integerValue];
         NSString *methodStr = nil;
-        if (isYYModel) {
-            
-            //append method content (objectClassInArray) if YYModel
+        if (tag == 0) {
             methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary<NSString *,id> *)modelContainerPropertyGenericClass{\n    return @{%@};\n}\n",result];
-        }else{
-            // append method content (objectClassInArray)
-            methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary *)objectClassInArray{\n    return @{%@};\n}\n",result];
+        } else if (tag == 1) {
+            methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary<NSString *,id> *)modelContainerPropertyGenericClass{\n    return @{%@};\n}\n",result];
+        } else {
+            methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary *)keyMapper{\n    return [[JSONKeyMapper alloc]initWithModelToJSONDictionary:@{%@}];\n}\n",result];
         }
         
         return methodStr;

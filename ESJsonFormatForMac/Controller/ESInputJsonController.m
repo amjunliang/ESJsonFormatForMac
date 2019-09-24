@@ -31,6 +31,8 @@
 @property (weak) IBOutlet NSScrollView *scrollView;
 //@property (unsafe_unretained) IBOutlet NSTextView *classContentTextView;
 //@property (unsafe_unretained) IBOutlet NSTextView *mainClassContentTextView;
+@property (weak) IBOutlet NSSegmentedControl *segment;
+@property (weak) IBOutlet NSTextField *prefixField;
 //
 //@property (weak) IBOutlet NSLayoutConstraint *classContentTextViewH;
 @property (unsafe_unretained) IBOutlet NSTextView *hContentTextView;
@@ -59,7 +61,7 @@
 @property (nonatomic,assign) NSInteger  selectedRow;
 
 @property (nonatomic,assign) BOOL isPost;
-
+@property(nonatomic, strong) NSString *prifixOfModel;
 @end
 
 @implementation ESInputJsonController
@@ -80,6 +82,10 @@
     self.inputUrlTxf.delegate = self;
     self.superClassTextfield.delegate = self;
     [self.tableView reloadData];
+    
+    NSInteger tag = [[[NSUserDefaults standardUserDefaults] objectForKey:selectedModelTypeSegmentControllerActionKey] integerValue];
+    self.segment.selectedSegment  = tag;
+    
     [self creatAddAndDeledateBtn];
     
 }
@@ -390,10 +396,8 @@
 
 
 - (IBAction)selectedModelTypeSegmentControllerAction:(NSSegmentedControl *)sender {
-    
-    BOOL isYYModel = (sender.selectedSegment == 1)?YES:NO;
-    [[NSUserDefaults standardUserDefaults] setBool:isYYModel forKey:@"isYYModel"];
-    
+    [[NSUserDefaults standardUserDefaults] setObject:@(sender.selectedSegment) forKey:selectedModelTypeSegmentControllerActionKey];
+    [NSUserDefaults.standardUserDefaults synchronize];
 }
 
 - (IBAction)segmentControllerAction:(NSSegmentedControl *)sender {
@@ -425,10 +429,8 @@
 }
 
 - (IBAction)enterButtonClick:(NSButton *)sender {
-    
     [[NSUserDefaults standardUserDefaults] setValue:self.superClassTextfield.stringValue forKey:@"SuperClass"];
     
-           
        //self.classContentTextView.string = @"";
        //self.mainClassContentTextView.string = @"";
        self.hContentTextView.string = @"";
@@ -557,6 +559,16 @@
         
     });
 }
+
+- (NSString *)prifixOfModel
+{
+    if(self.prefixField.stringValue.length){
+        return self.prefixField.stringValue;
+    }
+    
+    return nil;
+}
+
 
 #pragma mark - Change ESJsonFormat
 /**

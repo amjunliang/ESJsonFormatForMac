@@ -13,6 +13,7 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import "ESUtils.h"
+#import "ESMacro.h"
 #import "NSString+ESExtension.h"
 #endif
 
@@ -29,7 +30,7 @@
 
 #define ESFormatResultNotification @"ESFormatResultNotification"
 
-#define ESRootClassName @"ESRootClass"
+#define ESRootClassName @"RootResponse"
 
 #define ESItemClassName @"ESItemClass"
 
