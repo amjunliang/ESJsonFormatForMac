@@ -861,9 +861,10 @@
     
     NSString *folderPath = [[NSUserDefaults standardUserDefaults] valueForKey:@"folderPath"];
     if (folderPath) {
-        
-        [[FileManager sharedInstance] handleBaseData:folderPath hFileName:self.hLabel.stringValue mFileName:self.mLabel.stringValue hContent:self.hContentTextView.string mContent:self.mContentTextView.string];
-        [[NSWorkspace sharedWorkspace] openFile:folderPath];
+        if (![self.hContentTextView.string containsString:@"null"]) {
+            [[FileManager sharedInstance] handleBaseData:folderPath hFileName:self.hLabel.stringValue mFileName:self.mLabel.stringValue hContent:self.hContentTextView.string mContent:self.mContentTextView.string];
+            [[NSWorkspace sharedWorkspace] openFile:folderPath];
+        }
     }else{
         
         NSOpenPanel *panel = [NSOpenPanel openPanel];
