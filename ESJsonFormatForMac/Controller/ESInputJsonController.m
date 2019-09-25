@@ -580,6 +580,7 @@
 - (ESClassInfo *)dealClassNameWithJsonResult:(id)result{
     __block ESClassInfo *classInfo = nil;
     //如果当前是JSON对应是字典
+    rootClassName = nil;
     if ([result isKindOfClass:[NSDictionary class]]) {
         //如果是生成到文件，提示输入Root class name
         if (![ESJsonFormatSetting defaultSetting].outputToFiles) {
@@ -686,7 +687,12 @@
  *
  *  @return 处理完毕的ClassInfo
  */
+
+static NSString * rootClassName = nil;
 - (ESClassInfo *)dealPropertyNameWithClassInfo:(ESClassInfo *)classInfo{
+    if (!rootClassName) {
+        rootClassName = classInfo.classNameKey;
+    }
     
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:classInfo.classDic];
     for (NSString *key in dic) {
@@ -702,10 +708,18 @@
                         continue;
                     }
                 }
-                if (![[self prefixClassName:[key capitalizedString]] isEqualToString:key]) {
-                    self.replaceClassNames[key] = [self prefixClassName:[key capitalizedString]];
+                NSString *className = key.capitalizedString;
+                NSString *preClassName =[self prefixClassName:className];
+                
+                if (![preClassName isEqualToString:key]) {
+                    self.replaceClassNames[key] = preClassName;
                 }
                 childClassName = [self prefixClassName:[key capitalizedString]];
+                if (![classInfo.classNameKey isEqualToString:rootClassName]) {
+                    childClassName = [classInfo.classNameKey.capitalizedString stringByAppendingString:key.capitalizedString];
+                    childClassName = [self prefixClassName:childClassName];
+                }
+
             } else {
                 ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
                 NSString *msg = [NSString stringWithFormat:@"The '%@' correspond class name is:",key];
