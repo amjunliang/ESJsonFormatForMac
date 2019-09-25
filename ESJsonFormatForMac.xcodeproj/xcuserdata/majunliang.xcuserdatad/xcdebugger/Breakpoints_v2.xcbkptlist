@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ESJsonFormatForMac/Controller/ESInputJsonController.m"
-            timestampString = "591128840.126619"
+            timestampString = "591129612.5708129"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "89"
-            endingLineNumber = "89"
-            landmarkName = "-awakeFromNib"
+            startingLineNumber = "643"
+            endingLineNumber = "643"
+            landmarkName = "-dealClassNameWithJsonResult:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

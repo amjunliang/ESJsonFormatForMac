@@ -883,14 +883,25 @@ static NSString * rootClassName = nil;
     }
 }
 
+- (BOOL)shouldCreatFile
+{
+    if (self.hContentTextView.string.length &&
+        ![self.hContentTextView.string containsString:@"(null)"] &&
+        ![self.mContentTextView.string containsString:@"null"]) {
+        return true;
+    }
+    return false;
+}
+
 - (void)creatFile{
+    if (!self.shouldCreatFile) {
+        return;
+    }
     
     NSString *folderPath = [[NSUserDefaults standardUserDefaults] valueForKey:@"folderPath"];
     if (folderPath) {
-        if (![self.hContentTextView.string containsString:@"(null)"]) {
-            [[FileManager sharedInstance] handleBaseData:folderPath hFileName:self.hLabel.stringValue mFileName:self.mLabel.stringValue hContent:self.hContentTextView.string mContent:self.mContentTextView.string];
-            [[NSWorkspace sharedWorkspace] openFile:folderPath];
-        }
+        [[FileManager sharedInstance] handleBaseData:folderPath hFileName:self.hLabel.stringValue mFileName:self.mLabel.stringValue hContent:self.hContentTextView.string mContent:self.mContentTextView.string];
+        [[NSWorkspace sharedWorkspace] openFile:folderPath];
     }else{
         
         NSOpenPanel *panel = [NSOpenPanel openPanel];
