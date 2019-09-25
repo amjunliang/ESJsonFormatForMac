@@ -56,8 +56,19 @@ static NSString *_protocals;
  *
  *  @return
  */
+
++ (NSString *)qualifier:(NSString *)qualifier checkWithKey:(NSString *)key
+{
+    if ([key hasPrefix:@"new"]) {
+        qualifier = [NSString stringWithFormat:@"%@,getter=the_%@",qualifier,key];
+    }
+    
+    return qualifier;
+}
+
 + (NSString *)formatObjcWithKey:(NSString *)key value:(NSObject *)value classInfo:(ESClassInfo *)classInfo{
     NSString *qualifierStr = @"copy, nullable";
+    qualifierStr = [self qualifier:qualifierStr checkWithKey:key];
     NSString *typeStr = @"NSString";
     //判断大小写
     
@@ -69,10 +80,13 @@ static NSString *_protocals;
     }else if([value isKindOfClass:[@(YES) class]]){
         //the 'NSCFBoolean' is private subclass of 'NSNumber'
         qualifierStr = @"assign";
+        qualifierStr = [self qualifier:qualifierStr checkWithKey:key];
         typeStr = @"BOOL";
         return [NSString stringWithFormat:@"@property (nonatomic, %@) %@ %@;",qualifierStr,typeStr,key];
     }else if([value isKindOfClass:[NSNumber class]]){
         qualifierStr = @"assign";
+        qualifierStr = [self qualifier:qualifierStr checkWithKey:key];
+
         NSString *valueStr = [NSString stringWithFormat:@"%@",value];
         if ([valueStr rangeOfString:@"."].location!=NSNotFound){
             typeStr = @"CGFloat";
@@ -114,6 +128,8 @@ static NSString *_protocals;
         }
         
         qualifierStr = @"strong, nullable";
+        qualifierStr = [self qualifier:qualifierStr checkWithKey:key];
+
         typeStr = @"NSArray";
         if (genericTypeStr.length) {
             return [NSString stringWithFormat:@"@property (nonatomic, %@) %@%@ *%@;",qualifierStr,typeStr,genericTypeStr,key];
@@ -129,6 +145,8 @@ static NSString *_protocals;
 //        return [NSString stringWithFormat:@"@property (nonatomic, %@) %@ *%@;",qualifierStr,typeStr,key];
     }else if ([value isKindOfClass:[NSDictionary class]]){
         qualifierStr = @"strong, nullable";
+        qualifierStr = [self qualifier:qualifierStr checkWithKey:key];
+
         ESClassInfo *childInfo = classInfo.propertyClassDic[key];
         typeStr = childInfo.className;
         if (!typeStr) {
