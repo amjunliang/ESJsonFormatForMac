@@ -61,7 +61,6 @@
 @property (nonatomic,assign) NSInteger  selectedRow;
 
 @property (nonatomic,assign) BOOL isPost;
-@property(nonatomic, strong) NSString *prifixOfModel;
 @end
 
 @implementation ESInputJsonController
@@ -560,10 +559,10 @@
     });
 }
 
-- (NSString *)prifixOfModel
+- (NSString *)prefixClassName:(NSString *)name
 {
     if(self.prefixField.stringValue.length){
-        return self.prefixField.stringValue;
+        return [self.prefixField.stringValue stringByAppendingString:name];
     }
     
     return nil;
@@ -584,30 +583,43 @@
     if ([result isKindOfClass:[NSDictionary class]]) {
         //如果是生成到文件，提示输入Root class name
         if (![ESJsonFormatSetting defaultSetting].outputToFiles) {
-            self.dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
-            NSString *msg = [NSString stringWithFormat:@"The root class for output to files name is:"];
+            __weak typeof(self) weakSelf = self;
             
-             __weak typeof(self) weakSelf = self;
-            
-            [self.dialog setDataWithMsg:msg defaultClassName:ESRootClassName enter:^(NSString *className) {
-                classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:className classDic:result];
-                
+            if (self.prefixField.stringValue.length) {
+                classInfo = [[ESClassInfo alloc] initWithClassNameKey:[self prefixClassName:ESRootClassName] ClassName:[self prefixClassName:ESRootClassName] classDic:result];
                 if (weakSelf.isSwift) {
-                    
-                    weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.swift",className];
-                     weakSelf.mLabel.stringValue  = @"";
-                    
+                    weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.swift",[self prefixClassName:ESRootClassName]];
+                    weakSelf.mLabel.stringValue  = @"";
                 }else{
-                   
-                    weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.h",className];
-                    weakSelf.mLabel.stringValue  = [NSString stringWithFormat:@"%@.m",className];
-                    
+                    weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.h",[self prefixClassName:ESRootClassName]];
+                    weakSelf.mLabel.stringValue  = [NSString stringWithFormat:@"%@.m",[self prefixClassName:ESRootClassName]];
                 }
+            } else {
+                self.dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
+                NSString *msg = [NSString stringWithFormat:@"The root class for output to files name is:"];
+
                 
-            }];
-            
-            [NSApp beginSheet:[self.dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
-            [NSApp runModalForWindow:[self.dialog window]];
+                [self.dialog setDataWithMsg:msg defaultClassName:ESRootClassName enter:^(NSString *className) {
+                    classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:className classDic:result];
+                    
+                    if (weakSelf.isSwift) {
+                        
+                        weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.swift",className];
+                        weakSelf.mLabel.stringValue  = @"";
+                        
+                    }else{
+                        
+                        weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.h",className];
+                        weakSelf.mLabel.stringValue  = [NSString stringWithFormat:@"%@.m",className];
+                        
+                    }
+                    
+                }];
+                
+                [NSApp beginSheet:[self.dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+                [NSApp runModalForWindow:[self.dialog window]];
+            }
+     
             [self dealPropertyNameWithClassInfo:classInfo];
         }else{
             //不生成到文件，Root class 里面用户自己创建
@@ -617,37 +629,50 @@
     }else if([result isKindOfClass:[NSArray class]]){
         if ([ESJsonFormatSetting defaultSetting].outputToFiles) {
             //当前是JSON代表数组，生成到文件需要提示用户输入Root Class name，
-            ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
-            NSString *msg = [NSString stringWithFormat:@"The root class for output to files name is:"];
-            __block NSString *rootClassName = ESRootClassName;
-            [dialog setDataWithMsg:msg defaultClassName:ESRootClassName enter:^(NSString *className) {
-                rootClassName = className;
-            }];
-            [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
-            [NSApp runModalForWindow:[dialog window]];
+            if (self.prefixField.stringValue.length) {
+                __block NSString *rootClassName = [self prefixClassName:ESRootClassName];
+                NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:[self prefixClassName:ESArrayKeyName]];
+                classInfo = [[ESClassInfo alloc] initWithClassNameKey:[self prefixClassName:ESRootClassName] ClassName:rootClassName classDic:dic];
+            } else {
+                ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
+                NSString *msg = [NSString stringWithFormat:@"The root class for output to files name is:"];
+                __block NSString *rootClassName = ESRootClassName;
+                [dialog setDataWithMsg:msg defaultClassName:ESRootClassName enter:^(NSString *className) {
+                    rootClassName = className;
+                }];
+                [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+                [NSApp runModalForWindow:[dialog window]];
+                
+                //并且提示用户输入JSON对应的key的名字
+                dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
+                msg = [NSString stringWithFormat:@"The JSON is an array,the correspond 'key' is:"];
+                [dialog setDataWithMsg:msg defaultClassName:ESArrayKeyName enter:^(NSString *className) {
+                    //输入完毕之后，将这个class设置
+                    NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:className];
+                    classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:rootClassName classDic:dic];
+                }];
+                [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+                [NSApp runModalForWindow:[dialog window]];
+            }
             
-            //并且提示用户输入JSON对应的key的名字
-            dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
-            msg = [NSString stringWithFormat:@"The JSON is an array,the correspond 'key' is:"];
-            [dialog setDataWithMsg:msg defaultClassName:ESArrayKeyName enter:^(NSString *className) {
-                //输入完毕之后，将这个class设置
-                NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:className];
-                classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:rootClassName classDic:dic];
-            }];
-            [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
-            [NSApp runModalForWindow:[dialog window]];
             [self dealPropertyNameWithClassInfo:classInfo];
         }else{
-            //Root class 已存在，只需要输入JSON对应的key的名字
-            ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
-            NSString *msg = [NSString stringWithFormat:@"The JSON is an array,the correspond 'key' is:"];
-            [dialog setDataWithMsg:msg defaultClassName:ESArrayKeyName enter:^(NSString *className) {
-                //输入完毕之后，将这个class设置
-                NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:className];
-                classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:ESRootClassName classDic:dic];
-            }];
-            [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
-            [NSApp runModalForWindow:[dialog window]];
+            if (self.prefixField.stringValue.length) {
+                NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey: [self prefixClassName:ESArrayKeyName]];
+                classInfo = [[ESClassInfo alloc] initWithClassNameKey:[self prefixClassName:ESRootClassName] ClassName:[self prefixClassName:ESRootClassName] classDic:dic];
+            } else {
+                //Root class 已存在，只需要输入JSON对应的key的名字
+                ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
+                NSString *msg = [NSString stringWithFormat:@"The JSON is an array,the correspond 'key' is:"];
+                [dialog setDataWithMsg:msg defaultClassName:ESArrayKeyName enter:^(NSString *className) {
+                    //输入完毕之后，将这个class设置
+                    NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:className];
+                    classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:ESRootClassName classDic:dic];
+                }];
+                [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+                [NSApp runModalForWindow:[dialog window]];
+
+            }
             [self dealPropertyNameWithClassInfo:classInfo];
         }
     }
@@ -668,25 +693,40 @@
         //取出的可能是NSDictionary或者NSArray
         id obj = dic[key];
         if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
-            ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
-            NSString *msg = [NSString stringWithFormat:@"The '%@' correspond class name is:",key];
-            if ([obj isKindOfClass:[NSArray class]]) {
-                //May be 'NSString'，will crash
-                if (!([[obj firstObject] isKindOfClass:[NSDictionary class]] || [[obj firstObject] isKindOfClass:[NSArray class]])) {
-                    continue;
-                }
-                dialog.objIsKindOfArray = YES;
-                msg = [NSString stringWithFormat:@"The '%@' child items class name is:",key];
-            }
+            
             __block NSString *childClassName;//Record the current class name
-            [dialog setDataWithMsg:msg defaultClassName:[key capitalizedString] enter:^(NSString *className) {
-                if (![className isEqualToString:key]) {
-                    self.replaceClassNames[key] = className;
+            if (self.prefixField.stringValue.length) {
+                if ([obj isKindOfClass:[NSArray class]]) {
+                    //May be 'NSString'，will crash
+                    if (!([[obj firstObject] isKindOfClass:[NSDictionary class]] || [[obj firstObject] isKindOfClass:[NSArray class]])) {
+                        continue;
+                    }
                 }
-                childClassName = className;
-            }];
-            [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
-            [NSApp runModalForWindow:[dialog window]];
+                if (![[self prefixClassName:[key capitalizedString]] isEqualToString:key]) {
+                    self.replaceClassNames[key] = [self prefixClassName:[key capitalizedString]];
+                }
+                childClassName = [self prefixClassName:[key capitalizedString]];
+            } else {
+                ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
+                NSString *msg = [NSString stringWithFormat:@"The '%@' correspond class name is:",key];
+                if ([obj isKindOfClass:[NSArray class]]) {
+                    //May be 'NSString'，will crash
+                    if (!([[obj firstObject] isKindOfClass:[NSDictionary class]] || [[obj firstObject] isKindOfClass:[NSArray class]])) {
+                        continue;
+                    }
+                    dialog.objIsKindOfArray = YES;
+                    msg = [NSString stringWithFormat:@"The '%@' child items class name is:",key];
+                }
+                [dialog setDataWithMsg:msg defaultClassName:[key capitalizedString] enter:^(NSString *className) {
+                    if (![className isEqualToString:key]) {
+                        self.replaceClassNames[key] = className;
+                    }
+                    childClassName = className;
+                }];
+                [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+                [NSApp runModalForWindow:[dialog window]];
+            }
+            
             //如果当前obj是 NSDictionary 或者 NSArray，继续向下遍历
             if ([obj isKindOfClass:[NSDictionary class]]) {
                 ESClassInfo *childClassInfo = [[ESClassInfo alloc] initWithClassNameKey:key ClassName:childClassName classDic:obj];

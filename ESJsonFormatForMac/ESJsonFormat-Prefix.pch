@@ -32,7 +32,7 @@
 
 #define ESRootClassName @"RootResponse"
 
-#define ESItemClassName @"ESItemClass"
+#define ESItemClassName @"ItemClass"
 
 #define ESArrayKeyName @"esArray"
 

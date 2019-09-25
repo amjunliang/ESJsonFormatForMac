@@ -26,7 +26,7 @@
              hContent :(NSString *)hContent
              mContent :(NSString *)mContent
 {
-    NSString *modelStr = [NSString stringWithFormat:@"//\n//Created by ESJsonFormatForMac on %@.\n//\n\n",[self getDateStr]];
+    NSString *modelStr = [NSString stringWithFormat:@"//\n//Created by iReader on %@.\n//\n\n",[self getDateStr]];
     NSMutableString *hImportStr = nil;
     NSString *mImportStr = nil;
     NSString *newHContent = nil;
