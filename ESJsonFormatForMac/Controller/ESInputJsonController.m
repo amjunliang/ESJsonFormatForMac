@@ -813,10 +813,12 @@
             self.mContentTextView.string = mContent;
             
             //如果输入主类的话就一起显示了
-            [self.hContentTextView insertText:classInfo.atClassContent replacementRange:NSMakeRange(0, self.hContentTextView.string.length)];
+            [self.hContentTextView insertText:@"NS_ASSUME_NONNULL_BEGIN\n\n" replacementRange:NSMakeRange(0, self.hContentTextView.string.length)];
+            [self.hContentTextView insertText:classInfo.atClassContent replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
             [self.hContentTextView insertText:[NSString stringWithFormat:@"\n%@",classInfo.classContentForH] replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
             [self.hContentTextView insertText:[NSString stringWithFormat:@"\n%@",classInfo.classInsertTextViewContentForH] replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
-            
+            [self.hContentTextView insertText:@"NS_ASSUME_NONNULL_END" replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
+
             //.m文件内容不能使用废除的insert方法插入，否则""将失效；
 //            [self.mContentTextView insertText:classInfo.classContentForM replacementRange:NSMakeRange(0, self.mContentTextView.string.length)];
 //            [self.mContentTextView insertText:[NSString stringWithFormat:@"\n%@",classInfo.classInsertTextViewContentForM] replacementRange:NSMakeRange(self.mContentTextView.string.length,0)];

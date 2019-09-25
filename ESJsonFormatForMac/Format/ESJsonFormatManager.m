@@ -87,14 +87,14 @@
             genericTypeStr = @"<NSNumber *>";
         }
         
-        qualifierStr = @"strong, qualifierStr";
+        qualifierStr = @"strong, nullable";
         typeStr = @"NSArray";
         if ([ESJsonFormatSetting defaultSetting].useGeneric && [ESUtils isXcode7AndLater]) {
             return [NSString stringWithFormat:@"@property (nonatomic, %@) %@%@ *%@;",qualifierStr,typeStr,genericTypeStr,key];
         }
         return [NSString stringWithFormat:@"@property (nonatomic, %@) %@ *%@;",qualifierStr,typeStr,key];
     }else if ([value isKindOfClass:[NSDictionary class]]){
-        qualifierStr = @"strong, qualifierStr";
+        qualifierStr = @"strong, nullable";
         ESClassInfo *childInfo = classInfo.propertyClassDic[key];
         typeStr = childInfo.className;
         if (!typeStr) {
