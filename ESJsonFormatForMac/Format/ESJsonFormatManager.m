@@ -35,6 +35,18 @@
     return resultStr;
 }
 
+
+static NSString *_protocals;
+
++(NSString *)protocals
+{
+    return _protocals;
+}
++(void )clearnProtocals
+{
+    _protocals = nil;
+}
+
 /**
  *  格式化OC属性字符串
  *
@@ -48,6 +60,7 @@
     NSString *qualifierStr = @"copy, nullable";
     NSString *typeStr = @"NSString";
     //判断大小写
+    
     if ([ESUppercaseKeyWords containsObject:key] && [ESJsonFormatSetting defaultSetting].uppercaseKeyWordForId) {
         key = [key uppercaseString];
     }
@@ -76,23 +89,44 @@
         NSArray *array = (NSArray *)value;
         
         //May be 'NSString'，will crash
-        NSString *genericTypeStr = @"";
+        NSString *genericTypeStr = nil;
         NSObject *firstObj = [array firstObject];
-        if ([firstObj isKindOfClass:[NSDictionary class]]) {
-            ESClassInfo *childInfo = classInfo.propertyArrayDic[key];
-            genericTypeStr = [NSString stringWithFormat:@"<%@ *>",childInfo.className];
-        }else if ([firstObj isKindOfClass:[NSString class]]){
-            genericTypeStr = @"<NSString *>";
-        }else if ([firstObj isKindOfClass:[NSNumber class]]){
-            genericTypeStr = @"<NSNumber *>";
+        NSInteger tag = [[[NSUserDefaults standardUserDefaults] objectForKey:selectedModelTypeSegmentControllerActionKey] integerValue];
+        if (tag == 2) {
+            if ([firstObj isKindOfClass:[NSDictionary class]]) {
+                ESClassInfo *childInfo = classInfo.propertyArrayDic[key];
+                if (!_protocals) {
+                    _protocals = childInfo.className;
+                } else {
+                    _protocals = [_protocals stringByAppendingString:[NSString stringWithFormat:@",%@",childInfo.className]];
+                }
+                genericTypeStr = [NSString stringWithFormat:@"<%@>",childInfo.className];
+            }
+        } else {
+            if ([firstObj isKindOfClass:[NSDictionary class]]) {
+                ESClassInfo *childInfo = classInfo.propertyArrayDic[key];
+                genericTypeStr = [NSString stringWithFormat:@"<%@ *>",childInfo.className];
+            }else if ([firstObj isKindOfClass:[NSString class]]){
+                genericTypeStr = @"<NSString *>";
+            }else if ([firstObj isKindOfClass:[NSNumber class]]){
+                genericTypeStr = @"<NSNumber *>";
+            }
         }
         
         qualifierStr = @"strong, nullable";
         typeStr = @"NSArray";
-        if ([ESJsonFormatSetting defaultSetting].useGeneric && [ESUtils isXcode7AndLater]) {
+        if (genericTypeStr.length) {
             return [NSString stringWithFormat:@"@property (nonatomic, %@) %@%@ *%@;",qualifierStr,typeStr,genericTypeStr,key];
+        } else {
+            return [NSString stringWithFormat:@"@property (nonatomic, %@) %@ *%@;",qualifierStr,typeStr,key];
+            
         }
-        return [NSString stringWithFormat:@"@property (nonatomic, %@) %@ *%@;",qualifierStr,typeStr,key];
+        
+
+//        if ([ESJsonFormatSetting defaultSetting].useGeneric && [ESUtils isXcode7AndLater]) {
+//            return [NSString stringWithFormat:@"@property (nonatomic, %@) %@%@ *%@;",qualifierStr,typeStr,genericTypeStr,key];
+//        }
+//        return [NSString stringWithFormat:@"@property (nonatomic, %@) %@ *%@;",qualifierStr,typeStr,key];
     }else if ([value isKindOfClass:[NSDictionary class]]){
         qualifierStr = @"strong, nullable";
         ESClassInfo *childInfo = classInfo.propertyClassDic[key];
@@ -284,7 +318,7 @@
         } else if (tag == 1) {
             methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary<NSString *,id> *)modelContainerPropertyGenericClass{\n    return @{%@};\n}\n",result];
         } else {
-            methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary *)keyMapper{\n    return [[JSONKeyMapper alloc]initWithModelToJSONDictionary:@{%@}];\n}\n",result];
+            methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary *)keyMapper{\n    return [[JSONKeyMapper alloc]initWithModelToJSONDictionary:@{%@}];\n}\n",@""];
         }
         
         return methodStr;

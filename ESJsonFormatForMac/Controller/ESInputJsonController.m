@@ -444,7 +444,7 @@
            [alert runModal];
            NSLog(@"Error：Json is invalid");
        }else{
-           
+           [ESJsonFormatManager clearnProtocals];
            ESClassInfo *classInfo = [self dealClassNameWithJsonResult:result];
            [self close];
            [self outputResult:classInfo];
@@ -813,11 +813,18 @@
             self.mContentTextView.string = mContent;
             
             //如果输入主类的话就一起显示了
-            [self.hContentTextView insertText:@"NS_ASSUME_NONNULL_BEGIN\n\n" replacementRange:NSMakeRange(0, self.hContentTextView.string.length)];
             [self.hContentTextView insertText:classInfo.atClassContent replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
             [self.hContentTextView insertText:[NSString stringWithFormat:@"\n%@",classInfo.classContentForH] replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
             [self.hContentTextView insertText:[NSString stringWithFormat:@"\n%@",classInfo.classInsertTextViewContentForH] replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
             [self.hContentTextView insertText:@"NS_ASSUME_NONNULL_END" replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
+
+            if ([ESJsonFormatManager protocals].length) {
+                NSString *pr = [NSString stringWithFormat:@"@protocol %@;\n",[ESJsonFormatManager protocals]];
+                [self.hContentTextView insertText:pr replacementRange:NSMakeRange(0, 0)];
+            }
+            
+            [self.hContentTextView insertText:@"NS_ASSUME_NONNULL_BEGIN\n\n" replacementRange:NSMakeRange(0, 0)];
+
 
             //.m文件内容不能使用废除的insert方法插入，否则""将失效；
 //            [self.mContentTextView insertText:classInfo.classContentForM replacementRange:NSMakeRange(0, self.mContentTextView.string.length)];
@@ -846,7 +853,7 @@
             [self.hContentTextView insertText:classInfo.classInsertTextViewContentForH replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
         }
         
-        [self creatFile];
+        //[self creatFile];
     }
 }
 

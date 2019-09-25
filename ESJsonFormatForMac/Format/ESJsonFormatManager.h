@@ -57,5 +57,6 @@
  */
 + (void)createFileWithFolderPath:(NSString *)folderPath classInfo:(ESClassInfo *)classInfo;
 
-
++(NSString *)protocals;
++(void )clearnProtocals;
 @end
