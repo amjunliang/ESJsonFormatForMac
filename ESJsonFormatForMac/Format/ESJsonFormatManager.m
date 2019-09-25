@@ -318,7 +318,7 @@ static NSString *_protocals;
         } else if (tag == 1) {
             methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary<NSString *,id> *)modelContainerPropertyGenericClass{\n    return @{%@};\n}\n",result];
         } else {
-            methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary *)keyMapper{\n    return [[JSONKeyMapper alloc]initWithModelToJSONDictionary:@{%@}];\n}\n",@""];
+            methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary *)keyMapper{\n    return [[JSONKeyMapper alloc]initWithModelToJSONDictionary:@{}];\n}\n",@""];
         }
         
         return methodStr;

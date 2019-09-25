@@ -76,5 +76,9 @@
     }
 }
 
+- (void)cancelOperation:(id)sender
+{
+    [self close];
+}
 
 @end

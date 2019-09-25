@@ -813,7 +813,7 @@
             self.mContentTextView.string = mContent;
             
             //如果输入主类的话就一起显示了
-            [self.hContentTextView insertText:classInfo.atClassContent replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
+            self.hContentTextView.string = @"";
             [self.hContentTextView insertText:[NSString stringWithFormat:@"\n%@",classInfo.classContentForH] replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
             [self.hContentTextView insertText:[NSString stringWithFormat:@"\n%@",classInfo.classInsertTextViewContentForH] replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
             [self.hContentTextView insertText:@"NS_ASSUME_NONNULL_END" replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
@@ -853,7 +853,7 @@
             [self.hContentTextView insertText:classInfo.classInsertTextViewContentForH replacementRange:NSMakeRange(self.hContentTextView.string.length, 0)];
         }
         
-        //[self creatFile];
+        [self creatFile];
     }
 }
 
