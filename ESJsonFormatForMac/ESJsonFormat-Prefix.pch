@@ -31,10 +31,7 @@
 #define ESFormatResultNotification @"ESFormatResultNotification"
 
 static NSString *ESRootClassName =  @"RootResponse";
-
-static NSString *ESItemClassName = @"ItemClass";
-
-static NSString *ESArrayKeyName = @"esArray";
+static NSString *ESArrayKeyName = @"items";
 
 #define ESJsonFormatPluginPath [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"Developer/Shared/Xcode/Plug-ins/ESJsonFormat.xcplugin"]
 

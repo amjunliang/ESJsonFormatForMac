@@ -823,13 +823,13 @@ CiAgICAgICAgICAgIA
                             </textField>
                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="KFt-ry-en5">
                                 <rect key="frame" x="8" y="17" width="64" height="26"/>
-                                <popUpButtonCell key="cell" type="push" title="Post" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="aAt-Sp-Ny5" id="Lu4-6F-m6E">
+                                <popUpButtonCell key="cell" type="push" title="Get" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="AQR-m7-Hcg" id="Lu4-6F-m6E">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="menu"/>
                                     <menu key="menu" id="kxB-QX-Eqi">
                                         <items>
-                                            <menuItem title="Post" state="on" id="aAt-Sp-Ny5"/>
-                                            <menuItem title="Get" id="AQR-m7-Hcg"/>
+                                            <menuItem title="Post" id="aAt-Sp-Ny5"/>
+                                            <menuItem title="Get" state="on" id="AQR-m7-Hcg"/>
                                         </items>
                                     </menu>
                                 </popUpButtonCell>

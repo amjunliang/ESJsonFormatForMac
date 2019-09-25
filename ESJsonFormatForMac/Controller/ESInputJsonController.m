@@ -581,6 +581,18 @@
 }
 
 
+- (void)firstCreat
+{
+    if (self.isSwift) {
+        self.hLabel.stringValue = [NSString stringWithFormat:@"%@.swift",[self prefixClassName:ESRootClassName]];
+        self.mLabel.stringValue  = @"";
+    }else{
+        self.hLabel.stringValue = [NSString stringWithFormat:@"%@.h",[self prefixClassName:ESRootClassName]];
+        self.mLabel.stringValue  = [NSString stringWithFormat:@"%@.m",[self prefixClassName:ESRootClassName]];
+    }
+}
+
+
 #pragma mark - Change ESJsonFormat
 /**
  *  初始类名，RootClass/JSON为数组/创建文件与否
@@ -592,21 +604,18 @@
 - (ESClassInfo *)dealClassNameWithJsonResult:(id)result{
     __block ESClassInfo *classInfo = nil;
     //如果当前是JSON对应是字典
-    rootClassName = nil;
+    rootClassName = nil;//标记rootClassName第一次创建
+    NSString * className = [self prefixClassName:ESRootClassName];
+    if (!className) {
+        className = ESRootClassName;
+    }
     if ([result isKindOfClass:[NSDictionary class]]) {
         //如果是生成到文件，提示输入Root class name
         if (![ESJsonFormatSetting defaultSetting].outputToFiles) {
             __weak typeof(self) weakSelf = self;
-            
             if (self.prefixField.stringValue.length) {
-                classInfo = [[ESClassInfo alloc] initWithClassNameKey:[self prefixClassName:ESRootClassName] ClassName:[self prefixClassName:ESRootClassName] classDic:result];
-                if (weakSelf.isSwift) {
-                    weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.swift",[self prefixClassName:ESRootClassName]];
-                    weakSelf.mLabel.stringValue  = @"";
-                }else{
-                    weakSelf.hLabel.stringValue = [NSString stringWithFormat:@"%@.h",[self prefixClassName:ESRootClassName]];
-                    weakSelf.mLabel.stringValue  = [NSString stringWithFormat:@"%@.m",[self prefixClassName:ESRootClassName]];
-                }
+                classInfo = [[ESClassInfo alloc] initWithClassNameKey:className ClassName:className classDic:result];
+                [self firstCreat];
             } else {
                 self.dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
                 NSString *msg = [NSString stringWithFormat:@"The root class for output to files name is:"];
@@ -636,7 +645,7 @@
             [self dealPropertyNameWithClassInfo:classInfo];
         }else{
             //不生成到文件，Root class 里面用户自己创建
-            classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:ESRootClassName classDic:result];
+            classInfo = [[ESClassInfo alloc] initWithClassNameKey:className ClassName:className classDic:result];
             [self dealPropertyNameWithClassInfo:classInfo];
         }
     }else if([result isKindOfClass:[NSArray class]]){
@@ -646,6 +655,7 @@
                 __block NSString *rootClassName = [self prefixClassName:ESRootClassName];
                 NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:[self prefixClassName:ESArrayKeyName]];
                 classInfo = [[ESClassInfo alloc] initWithClassNameKey:[self prefixClassName:ESRootClassName] ClassName:rootClassName classDic:dic];
+                [self firstCreat];
             } else {
                 ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
                 NSString *msg = [NSString stringWithFormat:@"The root class for output to files name is:"];
@@ -663,6 +673,7 @@
                     //输入完毕之后，将这个class设置
                     NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:className];
                     classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:rootClassName classDic:dic];
+                    [self firstCreat];
                 }];
                 [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
                 [NSApp runModalForWindow:[dialog window]];
@@ -671,8 +682,9 @@
             [self dealPropertyNameWithClassInfo:classInfo];
         }else{
             if (self.prefixField.stringValue.length) {
-                NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey: [self prefixClassName:ESArrayKeyName]];
-                classInfo = [[ESClassInfo alloc] initWithClassNameKey:[self prefixClassName:ESRootClassName] ClassName:[self prefixClassName:ESRootClassName] classDic:dic];
+                NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey: ESArrayKeyName];
+                classInfo = [[ESClassInfo alloc] initWithClassNameKey:className ClassName:className classDic:dic];
+                [self firstCreat];
             } else {
                 //Root class 已存在，只需要输入JSON对应的key的名字
                 ESDialogController *dialog = [[ESDialogController alloc] initWithWindowNibName:@"ESDialogController"];
@@ -681,6 +693,7 @@
                     //输入完毕之后，将这个class设置
                     NSDictionary *dic = [NSDictionary dictionaryWithObject:result forKey:className];
                     classInfo = [[ESClassInfo alloc] initWithClassNameKey:ESRootClassName ClassName:ESRootClassName classDic:dic];
+                    [self firstCreat];
                 }];
                 [NSApp beginSheet:[dialog window] modalForWindow:[NSApp mainWindow] modalDelegate:nil didEndSelector:nil contextInfo:nil];
                 [NSApp runModalForWindow:[dialog window]];
@@ -887,7 +900,10 @@ static NSString * rootClassName = nil;
 {
     if (self.hContentTextView.string.length &&
         ![self.hContentTextView.string containsString:@"(null)"] &&
-        ![self.mContentTextView.string containsString:@"null"]) {
+        ![self.mContentTextView.string containsString:@"null"] &&
+        ![self.hLabel.stringValue hasPrefix:@"."] &&
+        ![self.mLabel.stringValue hasPrefix:@"."]
+        ) {
         return true;
     }
     return false;

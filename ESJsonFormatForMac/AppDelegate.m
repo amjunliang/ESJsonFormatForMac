@@ -8,9 +8,10 @@
 
 #import "AppDelegate.h"
 #import "ESInputJsonController.h"
+#import "ESSettingController.h"
 
 @interface AppDelegate ()
-
+@property(nonatomic, strong) ESSettingController *set;
 @end
 
 @implementation AppDelegate
@@ -31,6 +32,11 @@
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
+}
+- (IBAction)showpreference:(id)sender {
+    
+    self.set =  [[ESSettingController alloc] initWithWindowNibName:@"ESSettingController"];
+    [self.set showWindow:nil];
 }
 
 
