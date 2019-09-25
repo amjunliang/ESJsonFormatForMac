@@ -336,7 +336,7 @@ static NSString *_protocals;
         } else if (tag == 1) {
             methodStr = [NSString stringWithFormat:@"\n+ (NSDictionary *)objectClassInArray{\n    return @{%@};\n}\n",result];
         } else {
-            methodStr = [NSString stringWithFormat:@"\n+ (JSONKeyMapper *)keyMapper{\n    return [[JSONKeyMapper alloc]initWithModelToJSONDictionary:@{}];\n}\n"];
+            methodStr = [NSString stringWithFormat:@"/*\n+ (JSONKeyMapper *)keyMapper{\n    return [[JSONKeyMapper alloc]initWithModelToJSONDictionary:@{}];\n}\n*/"];
         }
         
         return methodStr;

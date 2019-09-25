@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B40B455233BFA7100722DEC /* ESRootResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B40B453233BFA7100722DEC /* ESRootResponse.m */; };
 		FB4532681EE01AAD00B5457C /* DataModel.m in Sources */ = {isa = PBXBuildFile; fileRef = FB4532671EE01AAD00B5457C /* DataModel.m */; };
 		FB49E6BD1EE106BE00789060 /* HttpRequestTool.m in Sources */ = {isa = PBXBuildFile; fileRef = FB49E6BC1EE106BE00789060 /* HttpRequestTool.m */; };
 		FB63B6E11EF01F0800802A5E /* FileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FB63B6E01EF01F0800802A5E /* FileManager.m */; };
@@ -53,6 +54,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2B40B453233BFA7100722DEC /* ESRootResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESRootResponse.m; sourceTree = "<group>"; };
+		2B40B454233BFA7100722DEC /* ESRootResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESRootResponse.h; sourceTree = "<group>"; };
 		F623C792233A2E4D0026EE6D /* ESMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ESMacro.h; sourceTree = "<group>"; };
 		FB4532661EE01AAD00B5457C /* DataModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataModel.h; sourceTree = "<group>"; };
 		FB4532671EE01AAD00B5457C /* DataModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataModel.m; sourceTree = "<group>"; };
@@ -204,6 +207,8 @@
 		FB7C76DE1EC554D400949F64 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				2B40B454233BFA7100722DEC /* ESRootResponse.h */,
+				2B40B453233BFA7100722DEC /* ESRootResponse.m */,
 				FB7C76DF1EC554D400949F64 /* ESDialogController.h */,
 				FB7C76E01EC554D400949F64 /* ESDialogController.m */,
 				FB7C76E11EC554D400949F64 /* ESDialogController.xib */,
@@ -420,6 +425,7 @@
 				FB7C772E1EC5608D00949F64 /* ESClassInfo.m in Sources */,
 				FB7C77231EC5608200949F64 /* ESJsonFormatSetting.m in Sources */,
 				FB7C77371EC560B700949F64 /* ESJsonFormat.m in Sources */,
+				2B40B455233BFA7100722DEC /* ESRootResponse.m in Sources */,
 				FB7C76EA1EC554D400949F64 /* ESInputJsonController.m in Sources */,
 				FB7C76B31EC554B100949F64 /* main.m in Sources */,
 				FB63B6E11EF01F0800802A5E /* FileManager.m in Sources */,
