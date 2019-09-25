@@ -51,6 +51,7 @@
 
 @property (weak) IBOutlet NSPopUpButton *popUpBtn;
 @property (weak) IBOutlet NSTextField *superClassTextfield;
+@property (weak) IBOutlet NSTextField *rootClassName;
 
 
 /**保存参数模型数组*/
@@ -123,28 +124,32 @@
 #pragma mark - Private Methods
 - (void)creatAddAndDeledateBtn{
     
-    //添加按钮
-    NSButton *addBtn = [[NSButton alloc] initWithFrame:CGRectMake(0, 0, 40, 75)];
-    addBtn.title = @"+";
-    addBtn.font = [NSFont systemFontOfSize:25];
-    addBtn.wantsLayer = YES;
-    addBtn.layer.cornerRadius = 3.0f;
-    addBtn.layer.borderColor = [NSColor lightGrayColor].CGColor;
-    [addBtn setTarget:self];
-    addBtn.action = @selector(addRowUnderTheSelectedRow);
-    [self.btnBackView addSubview:addBtn];
-    
-    
-    //删除按钮
-    NSButton *deleteBtn = [[NSButton alloc] initWithFrame:CGRectMake(0, 75, 40, 75)];
-    deleteBtn.title = @"-";
-    deleteBtn.font = [NSFont systemFontOfSize:25];
-    deleteBtn.wantsLayer = YES;
-    deleteBtn.layer.cornerRadius = 3.0f;
-    deleteBtn.layer.borderColor = [NSColor lightGrayColor].CGColor;
-    [deleteBtn setTarget:self];
-    deleteBtn.action = @selector(deleteTheSelectedRow);
-    [self.btnBackView addSubview:deleteBtn];
+    if (self.btnBackView.subviews.count <3) {
+        
+        //添加按钮
+        NSButton *addBtn = [[NSButton alloc] initWithFrame:CGRectMake(0, 0, 45, 75)];
+        addBtn.title = @"+";
+        addBtn.font = [NSFont systemFontOfSize:20];
+        addBtn.wantsLayer = YES;
+        addBtn.layer.cornerRadius = 3.0f;
+        addBtn.layer.borderColor = [NSColor clearColor].CGColor;
+        [addBtn setTarget:self];
+        addBtn.action = @selector(addRowUnderTheSelectedRow);
+        [self.btnBackView addSubview:addBtn];
+        
+        
+        //删除按钮
+        NSButton *deleteBtn = [[NSButton alloc] initWithFrame:CGRectMake(0, 74, 45, 76)];
+        deleteBtn.title = @"-";
+        deleteBtn.font = [NSFont systemFontOfSize:20];
+        deleteBtn.wantsLayer = YES;
+        deleteBtn.layer.cornerRadius = 3.0f;
+        deleteBtn.layer.borderColor = [NSColor clearColor].CGColor;
+        [deleteBtn setTarget:self];
+        deleteBtn.action = @selector(deleteTheSelectedRow);
+        [self.btnBackView addSubview:deleteBtn];
+
+    }
 }
 
 
@@ -444,6 +449,13 @@
            [alert runModal];
            NSLog(@"Error：Json is invalid");
        }else{
+           
+           if (self.rootClassName.stringValue.length) {
+               ESRootClassName = self.rootClassName.stringValue;
+           } else {
+               ESRootClassName = @"RootResponse";
+           }
+           
            [ESJsonFormatManager clearnProtocals];
            ESClassInfo *classInfo = [self dealClassNameWithJsonResult:result];
            [self close];
